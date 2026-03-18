@@ -1,4 +1,5 @@
 using Dotnet_API_26_Minimal_API.Data;
+using Dotnet_API_26_Minimal_API.Models;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -48,6 +49,33 @@ app.MapGet("/student/{id:int}", async (int id, StudentDbContext db) =>
 );
 
 //CreateStudent
+
+app.MapPost("/student", async (Student student, StudentDbContext db) =>
+{
+    if(student is null)
+        return Results.BadRequest("Invalid Student Object");
+
+    db.Students.Add(student);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/students/{student.Id}", student);
+});
+
+//Delete Student
+
+app.MapDelete("/student/{id:int}", async(int id, StudentDbContext db) =>
+{
+    var stud = await db .Students.FirstOrDefaultAsync(x=> x.Id == id);
+
+    if (stud is null)
+       return  Results.NotFound("Student with this id not found");
+
+
+   db.Students.Remove(stud);
+   db.SaveChanges();
+
+    return Results.NoContent();
+});
 
 
 
